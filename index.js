@@ -78,15 +78,6 @@ const extractPages = async () => {
 };
 
 const screenshotPages = async () => {
-    const headers = new Map();
-
-    if (username) {
-        headers.set(
-            'Authorization',
-            `Basic ${new Buffer(`${username}:${password}`).toString('base64')}`
-        );
-    }
-
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.setViewport({
@@ -97,7 +88,12 @@ const screenshotPages = async () => {
     await asyncForEach(pages, async url => {
         response(`screenshotting: ${url}`);
         const filename = md5(url);
-        await page.setExtraHTTPHeaders(headers);
+        if (username) {
+            await page.authenticate({
+                username,
+                password,
+            })
+        }
         await page.goto(url);
         await page.screenshot({
             path: `./data/${filename}.jpg`,
