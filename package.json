@@ -1,0 +1,27 @@
+{
+  "name": "sitemap",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@std/esm": "^0.26.0",
+    "async-await-foreach": "^1.0.4",
+    "axios": "^0.19.2",
+    "body-parser": "^1.19.0",
+    "dot-notes": "^3.2.0",
+    "express": "^4.17.1",
+    "gojs": "^2.1.11",
+    "lodash": "^4.17.15",
+    "ltrim": "^1.0.0",
+    "md5": "^2.2.1",
+    "openurl": "^1.1.1",
+    "parse-url": "^5.0.1",
+    "puppeteer": "^2.1.1",
+    "xml2js": "^0.4.23"
+  }
+}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Sitemap Visualiser</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="/node_modules/axios/dist/axios.min.js"></script>
+    <script src="/node_modules/gojs/release/go.js"></script>
+    <script id="code">
+        window.pages = [];
+
+        function init() {
+            var $ = go.GraphObject.make; // for conciseness in defining templates
+
+            myDiagram = $(go.Diagram, "myDiagramDiv", {
+                initialAutoScale: go.Diagram.Uniform,
+                layout: $(SideTreeLayout, {
+                    treeStyle: go.TreeLayout.StyleLastParents,
+                    arrangement: go.TreeLayout.ArrangementHorizontal,
+                    angle: 90,
+                    alternateAngle: 90,
+                    alternateLayerSpacing: 35,
+                    alternateAlignment: go.TreeLayout.AlignmentBus,
+                    alternateNodeSpacing: 20
+                })
+            });
+
+            function screenShot(key) {
+                return window.pages.nodeDataArray.find(i => key === i.key).file;
+            }
+
+            myDiagram.nodeTemplate = $(
+                go.Node,
+                "Auto",
+                // for sorting, have the Node.text be the data.name
+                new go.Binding("text", "name"),
+                // define the node's outer shape
+                $(go.Shape, "Rectangle", {
+                    name: "SHAPE"
+                }),
+                $(
+                    go.Panel,
+                    "Horizontal",
+                    $(
+                        go.Picture,
+                        {
+                            name: "Picture",
+                            desiredSize: new go.Size(50, 40),
+                            margin: new go.Margin(6, 8, 6, 10)
+                        },
+                        new go.Binding("source", "key", screenShot)
+                    ),
+                    $(
+                        go.Panel,
+                        "Table",
+                        {
+                            maxSize: new go.Size(150, 999),
+                            margin: new go.Margin(6, 10, 0, 3)
+                        },
+                        $(go.RowColumnDefinition, {column: 2, width: 4}),
+                        $(
+                            go.TextBlock,
+                            {stroke: "white"}, // the name
+                            {
+                                name: "NAMETB",
+                                minSize: new go.Size(10, 16)
+                            },
+                            new go.Binding("text", "name").makeTwoWay()
+                        )
+                    )
+                )
+            );
+
+            load();
+        }
+
+        function SideTreeLayout() {
+            go.TreeLayout.call(this);
+        }
+
+        go.Diagram.inherit(SideTreeLayout, go.TreeLayout);
+
+        const load = async () => {
+
+            const {data} = await axios.get('/data/pages.json');
+            window.pages = data;
+            myDiagram.model = go.Model.fromJson(data);
+
+            var lastkey = 1;
+            myDiagram.model.makeUniqueKeyFunction = function (model, data) {
+                var k = data.key || lastkey;
+                while (model.findNodeDataForKey(k)) k++;
+                data.key = lastkey = k;
+                return k;
+            };
+        }
+    </script>
+</head>
+<body onload="init()">
+    <form action="/scan" target="_blank" method="get" style="display: block; height: 80px;">
+        <label for="url">sitemap.xml</label>
+        <input id="url" name="url" type="url" />
+        <label for="username">username</label>
+        <input id="username" name="username" type="text" />
+        <label for="password">password</label>
+        <input id="password" name="password" type="password" />
+        <button>scan</button>
+    </form>
+    <div id="myDiagramDiv" style="height: calc(100vh - 80px); width: 100vw;"></div>
+</body>
+</html>
