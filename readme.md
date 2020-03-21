@@ -2,6 +2,8 @@
 
 This parses/converts a public .xml file normally `www.website.com/sitemap.xml` collects all the URLs from it, then generates screenshots using Puppeteer and creates a family tree style hierarchy using GoJs.
 
+![preview](https://i.imgur.com/AIOH2VC.png)
+
 ## Usage
 
 - `npm install`
